@@ -107,6 +107,7 @@ router.post("/users", async (req, res) => {
     const token = user.generateToken();
     res.status(201).json({ token, user });
   } catch (error) {
+    
     res.status(400).json({ message: "Registration failed", error });
   }
 });
