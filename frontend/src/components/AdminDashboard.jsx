@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import {
@@ -12,18 +13,33 @@ import {
   Table,
   Empty,
   Card,
+  Select,
 } from 'antd';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 
 const { Title } = Typography;
+const { Option } = Select;
 
 function AdminDashboard() {
   const [stats, setStats] = useState({ users: [], merchants: [] });
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [selectedTierId, setSelectedTierId] = useState(null);
 
   useEffect(() => {
     fetchStats();
   }, []);
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(stats.users);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(data, 'users_data.xlsx');
+  };
 
   const fetchStats = async () => {
     setLoading(true);
@@ -55,32 +71,30 @@ function AdminDashboard() {
   };
 
   const merchantColumns = [
-  {
-    title: 'Tier Name',
-    dataIndex: 'tierName',
-    key: 'tierName',
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
-  },
-  {
-    title: 'Tier ID',
-    dataIndex: 'tierId',
-    key: 'tierId',
-  },
-  {
-    title: 'Registered Users',
-    key: 'registeredUsers',
-    render: (_, merchant) => {
-      // Count users with matching tierId
-      const count = stats.users.filter(user => user.tierId === merchant.tierId).length;
-      return count;
+    {
+      title: 'Tier Name',
+      dataIndex: 'tierName',
+      key: 'tierName',
     },
-  },
-];
-
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Tier ID',
+      dataIndex: 'tierId',
+      key: 'tierId',
+    },
+    {
+      title: 'Registered Users',
+      key: 'registeredUsers',
+      render: (_, merchant) => {
+        const count = stats.users.filter(user => user.tierId === merchant.tierId).length;
+        return count;
+      },
+    },
+  ];
 
   const userColumns = [
     {
@@ -104,7 +118,16 @@ function AdminDashboard() {
       dataIndex: 'points',
       key: 'points',
     },
+    {
+      title: 'Phone Number',
+      dataIndex: 'mobile',
+      key: 'mobile',
+    },
   ];
+
+  const filteredUsers = selectedTierId
+    ? stats.users.filter(user => user.tierId === selectedTierId)
+    : stats.users;
 
   return (
     <div className="max-w-6xl mx-auto p-6 mt-10 bg-white rounded shadow">
@@ -116,7 +139,6 @@ function AdminDashboard() {
         </div>
       ) : (
         <Row gutter={[24, 24]}>
-          {/* Left Column - Merchant Form + Table */}
           <Col xs={24} md={10}>
             <Card title="Add New Merchant" className="mb-4">
               <Form layout="vertical" onFinish={onFinish}>
@@ -127,7 +149,6 @@ function AdminDashboard() {
                 >
                   <Input />
                 </Form.Item>
-                
                 <Form.Item
                   label="Email"
                   name="email"
@@ -149,6 +170,13 @@ function AdminDashboard() {
                 >
                   <Input />
                 </Form.Item>
+                <Form.Item
+                  label="Shareable QR"
+                  name="qrCode"
+                  rules={[{ required: true, message: 'Please mention shareable QR' }]}
+                >
+                  <Input />
+                </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={adding} block>
                     Add Merchant
@@ -167,19 +195,37 @@ function AdminDashboard() {
                   rowKey="_id"
                   pagination={false}
                   size="small"
+                  onRow={(record) => ({
+                    onClick: () => setSelectedTierId(record.tierId), // Set selectedTierId on row click
+                  })}
                 />
               )}
             </Card>
           </Col>
 
-          {/* Right Column - Users */}
           <Col xs={24} md={14}>
             <Card title="All registered users">
-              {stats.users.length === 0 ? (
+              <Select
+                placeholder="Select Tier ID"
+                style={{ width: '100%', marginBottom: 16 }}
+                onChange={value => setSelectedTierId(value)}
+                allowClear
+              >
+                <Option value={null}>All Tiers</Option>
+                {stats.merchants.map(merchant => (
+                  <Option key={merchant.tierId} value={merchant.tierId}>
+                    {merchant.tierName} ({merchant.tierId})
+                  </Option>
+                ))}
+              </Select>
+              <Button type="primary" onClick={exportToExcel} style={{ marginBottom: 16 }}>
+                Download Users Data
+              </Button>
+              {filteredUsers.length === 0 ? (
                 <Empty description="No users available" />
               ) : (
                 <Table
-                  dataSource={stats.users}
+                  dataSource={filteredUsers}
                   columns={userColumns}
                   rowKey="_id"
                   pagination={false}

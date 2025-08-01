@@ -9,6 +9,7 @@ const merchantSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   updatedAt: { type: Date, default: Date.now },
+  qrCode: {type: String},
 },
 {
   timestamps : true
@@ -30,7 +31,7 @@ merchantSchema.methods.comparePassword = async function(candidatePassword) {
 merchantSchema.methods.generateToken = function() {
   const jwt = require('jsonwebtoken');
   let role = 'merchant';
-  return jwt.sign({ id: this._id, email: this.email, tierName: this.tierName, tierId: this.tierId, scansCount: this.scansCount, role: role}, process.env.JWT_SECRET, {
+  return jwt.sign({ id: this._id, email: this.email, tierName: this.tierName, tierId: this.tierId, scansCount: this.scansCount, role: role, qrCode:this.qrCode}, process.env.JWT_SECRET, {
     expiresIn: '7d',
   });
 };
