@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Input, Checkbox, Button, message } from 'antd';
+import { Form, Input, Checkbox, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import toast from 'react-hot-toast';
 
 function Register() {
   const [loading, setLoading] = useState(false);
@@ -12,12 +13,21 @@ function Register() {
     try {
       const res = await api.post('/register-user', values);
       const { user } = res.data;
-      const isAdminMessage = user.isAdmin ? 'User is an admin.' : 'User is not an admin.';
-      message.success(`Registered successfully. ${isAdminMessage}`);
-      navigate('/login'); // Redirect to login page after message
+
+      const isAdminMessage = user.isAdmin
+        ? 'User is an admin.'
+        : 'User is not an admin.';
+      navigate('/login'); // Redirect to login page after alert
+      // Show Ant Design toast
+      toast.success(`Registered successfully. ${isAdminMessage}`, 3);
+
+      // Wait for the message to display, then navigate
+      // setTimeout(() => {
+      //   navigate('/login');
+      // }, 1500);
     } catch (err) {
       console.error('Registration failed:', err.response?.data || err.message || err);
-      message.error(err.response?.data?.message || 'Registration failed');
+      message.error(err.response?.data?.message || 'Registration failed', 3);
     } finally {
       setLoading(false);
     }
