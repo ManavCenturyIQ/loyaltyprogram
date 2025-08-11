@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Checkbox, Button } from 'antd';
+import { Form, Input, Checkbox, Button, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -13,11 +13,11 @@ function Register() {
       const res = await api.post('/register-user', values);
       const { user } = res.data;
       const isAdminMessage = user.isAdmin ? 'User is an admin.' : 'User is not an admin.';
-      alert(`Registered successfully. ${isAdminMessage}`);
-      navigate('/login'); // Redirect to login page after alert
+      message.success(`Registered successfully. ${isAdminMessage}`);
+      navigate('/login'); // Redirect to login page after message
     } catch (err) {
       console.error('Registration failed:', err.response?.data || err.message || err);
-      alert(err.response?.data?.message || 'Registration failed');
+      message.error(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
