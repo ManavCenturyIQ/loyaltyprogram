@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { Form, Input, Checkbox, Button, message } from 'antd';
+import { Form, Input, Checkbox, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 function Register() {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
       const res = await api.post('/register-user', values);
-      message.success('Registered successfully');
-      console.log('Success response:', res.data);
+      const { user } = res.data;
+      const isAdminMessage = user.isAdmin ? 'User is an admin.' : 'User is not an admin.';
+      alert(`Registered successfully. ${isAdminMessage}`);
+      navigate('/login'); // Redirect to login page after alert
     } catch (err) {
       console.error('Registration failed:', err.response?.data || err.message || err);
-      message.error(err.response?.data?.message || 'Registration failed');
+      alert(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

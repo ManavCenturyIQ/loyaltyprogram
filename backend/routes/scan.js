@@ -31,11 +31,13 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
 router.post("/register-user", async (req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
     console.log(isAdmin);
-    const user = new User({ name, email, password });
+    // Include isAdmin when creating a new User
+    const user = new User({ name, email, password, isAdmin });
     await user.save();
     const token = user.generateToken();
     res.status(201).json({ token, user });
@@ -53,7 +55,6 @@ router.post("/register-user", async (req, res) => {
       .json({ message: "Registration failed", error: error.message });
   }
 });
-
 // User login
 router.post("/login", async (req, res) => {
   try {
