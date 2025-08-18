@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 import {
   Typography,
@@ -61,10 +62,10 @@ function AdminDashboard() {
       await api.post('/admin/merchant', values, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      message.success('Merchant added successfully');
+      toast.success('Merchant added successfully');
       fetchStats();
     } catch {
-      message.error('Failed to add merchant');
+      toast.error('Failed to add merchant');
     } finally {
       setAdding(false);
     }

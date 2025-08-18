@@ -8,7 +8,7 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:5173', 'https://loyaltyprogram.century.ae'];
+const allowedOrigins = ['http://localhost:5173', 'https://loyaltyprogram.century.ae','http://localhost:5174'];
  
 app.use(cors({
   origin: function (origin, callback) {
