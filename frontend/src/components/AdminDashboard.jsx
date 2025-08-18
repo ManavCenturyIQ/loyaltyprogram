@@ -48,7 +48,9 @@ function AdminDashboard() {
       const res = await api.get('/admin/stats', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      setStats(res.data);
+      // Filter out admin users from the stats.users array
+      const nonAdminUsers = res.data.users.filter(user => !user.isAdmin);
+      setStats({ ...res.data, users: nonAdminUsers });
     } catch {
       message.error('Failed to fetch stats');
     } finally {
@@ -171,13 +173,7 @@ function AdminDashboard() {
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  label="Shareable QR"
-                  name="qrCode"
-                  rules={[{ required: true, message: 'Please mention shareable QR' }]}
-                >
-                  <Input />
-                </Form.Item>
+                
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={adding} block>
                     Add Merchant

@@ -9,7 +9,7 @@ const merchantSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   updatedAt: { type: Date, default: Date.now },
-  qrCode: {type: String},
+  
 },
 {
   timestamps : true
