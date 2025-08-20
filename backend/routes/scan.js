@@ -6,7 +6,7 @@ const User = require("../models/User");
 const Merchant = require("../models/Merchant");
 const QRCode = require("qrcode");
 const { auth, admin } = require("../middleware/auth");
-const COOLDOWN_MS = 60 * 1000; // 1 minute (change to 24 * 60 * 60 * 1000 for 1 day)
+const COOLDOWN_MS = 5 * 1000; // 1 minute (change to 24 * 60 * 60 * 1000 for 1 day)
 
 // User registration
 router.post("/register", async (req, res) => {
